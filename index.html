@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="NRG Squash office league dashboard" />
+  <title>NRG Squash League</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="#home" class="brand">
+        <span class="brand-icon">⚡</span>
+        <span>
+          <strong>NRG SQUASH</strong>
+          <small>OFFICIALLY UNOFFICIAL</small>
+        </span>
+      </a>
+
+      <button id="menuButton" class="menu-button" aria-label="Open menu">☰</button>
+
+      <nav id="mainNav">
+        <a href="#home">Home</a>
+        <a href="#table">Table</a>
+        <a href="#submit">Enter Result</a>
+        <a href="#results">Results</a>
+        <a href="#players">Players</a>
+        <a href="#rules">Rules</a>
+        <a href="#login" id="loginNavLink">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section id="home" class="page-section hero active">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">NRG SQUASH</p>
+          <h1>
+            The Official,
+            <span>Over-Engineered</span>
+            Squash League!
+          </h1>
+          <h2>5 Players. 1 League. Lots of Excuses.</h2>
+          <p class="intro">
+            Live results, permanent records and room for plenty of debate.
+          </p>
+          <div class="button-row">
+            <a class="button primary" href="#submit">Enter a result</a>
+            <a class="button secondary" href="#table">View the table</a>
+          </div>
+        </div>
+
+        <aside class="hero-card">
+          <p class="card-label">CURRENT OFFICE MENACE</p>
+          <div id="leaderCard" class="leader-card loading">Loading standings…</div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="table" class="page-section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">THE IMPORTANT BIT</p>
+            <h2>League Table</h2>
+          </div>
+          <button id="refreshTableButton" class="button secondary small">Refresh</button>
+        </div>
+
+        <div class="notice">
+          Rankings are ordered by Elo. League points are games won plus one
+          participation point for every completed match.
+        </div>
+
+        <div class="table-card">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Player</th>
+                  <th>Played</th>
+                  <th>Won</th>
+                  <th>Lost</th>
+                  <th>Participation</th>
+                  <th>Points</th>
+                  <th>NRG Rating</th>
+                </tr>
+              </thead>
+              <tbody id="leagueTableBody">
+                <tr><td colspan="8">Loading standings…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="submit" class="page-section">
+      <div class="container narrow">
+        <p class="eyebrow">OFFICIAL ADMINISTRATION</p>
+        <h2>Enter Match Result</h2>
+
+        <div id="authWarning" class="notice warning hidden">
+          You need to log in before submitting a result.
+        </div>
+
+        <form id="matchForm" class="panel form-grid">
+          <label>
+            Player A
+            <select id="playerA" required>
+              <option value="">Select player</option>
+            </select>
+          </label>
+
+          <label>
+            Player B
+            <select id="playerB" required>
+              <option value="">Select player</option>
+            </select>
+          </label>
+
+          <label>
+            Player A games won
+            <input id="playerAGames" type="number" min="0" max="5" required />
+          </label>
+
+          <label>
+            Player B games won
+            <input id="playerBGames" type="number" min="0" max="5" required />
+          </label>
+
+          <label>
+            Date played
+            <input id="playedAt" type="datetime-local" required />
+          </label>
+
+          <label>
+            Venue
+            <input id="venue" type="text" placeholder="Office court" />
+          </label>
+
+          <label class="full-width">
+            Notes / legally binding excuses
+            <textarea id="notes" rows="4" placeholder="Lighting, hamstring, poor preparation, etc."></textarea>
+          </label>
+
+          <div class="full-width submit-summary" id="matchPreview">
+            Select two players and enter the result.
+          </div>
+
+          <div class="full-width button-row">
+            <button type="submit" class="button primary">Submit alleged result</button>
+          </div>
+
+          <p id="formMessage" class="full-width form-message" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <section id="results" class="page-section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">PERMANENT EVIDENCE</p>
+            <h2>Recent Results</h2>
+          </div>
+          <button id="refreshResultsButton" class="button secondary small">Refresh</button>
+        </div>
+        <div id="resultsList" class="results-grid">
+          <article class="result-card">Loading results…</article>
+        </div>
+      </div>
+    </section>
+
+    <section id="players" class="page-section">
+      <div class="container">
+        <p class="eyebrow">MEET THE ATHLETES</p>
+        <h2>Player Profiles</h2>
+        <p class="intro player-intro">
+          Five very different approaches to the same small court, each supported by firm opinions and selective memory.
+        </p>
+        <div id="playersGrid" class="players-grid">
+          <article class="player-card">Loading players…</article>
+        </div>
+      </div>
+    </section>
+
+    <section id="rules" class="page-section">
+      <div class="container narrow">
+        <p class="eyebrow">THE CONSTITUTION</p>
+        <h2>Rules</h2>
+
+        <div class="rules-list">
+          <article>
+            <h3>1. Match result</h3>
+            <p>
+              The player winning the most games wins the match. Results are entered as the number of games won
+              by each player, for example 2–1. Draws are not accepted by the bureaucracy because somebody must
+              eventually take responsibility.
+            </p>
+          </article>
+
+          <article>
+            <h3>2. Participation</h3>
+            <p>
+              Each player receives one participation point for every completed match, regardless of the result.
+              This rewards actually arriving, playing and resisting the temptation to cancel because of a
+              suspiciously tight calf.
+            </p>
+          </article>
+
+          <article>
+            <h3>3. League points</h3>
+            <p>
+              League points equal games won plus participation points. A 2–1 result therefore produces three
+              league points for the winner and two for the loser: two or one game points, plus one point each
+              for participation.
+            </p>
+          </article>
+
+          <article>
+            <h3>4. Ranking</h3>
+            <p>
+              Players are ranked by NRG Rating, which uses the Elo system.
+              Beating a higher-rated opponent earns more rating points than beating
+              a lower-rated opponent.
+            </p>
+          </article>
+
+          <article>
+            <h3>5. Elo settings</h3>
+            <p>
+              Ratings move after every confirmed result using a K-factor of 24. Olaf and Rich began slightly
+              above the chasing group to reflect the existing office pecking order; from there, every result
+              adjusts the ratings automatically.
+            </p>
+          </article>
+
+          <article>
+            <h3>6. Corrections</h3>
+            <p>
+              Incorrect results may be corrected by Dave's administrator login. When an old result is changed,
+              the system recalculates every later Elo movement in chronological order so the current table
+              remains consistent.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="login" class="page-section">
+      <div class="container narrow">
+        <p class="eyebrow">SECURITY THEATRE</p>
+        <h2>Player Login</h2>
+
+        <div class="panel">
+          <div id="loggedOutPanel">
+            <p>Sign in using your approved NRG office email address.</p>
+            <form id="loginForm" class="form-grid">
+              <label class="full-width">
+                Email address
+                <input id="loginEmail" type="email" required autocomplete="username"
+                       placeholder="name@nrgex.co.za" />
+              </label>
+
+              <label class="full-width">
+                Password
+                <input id="loginPassword" type="password" required
+                       autocomplete="current-password" placeholder="Password" />
+              </label>
+
+              <div class="full-width button-row">
+                <button class="button primary" type="submit">Sign in</button>
+              </div>
+            </form>
+          </div>
+
+          <div id="loggedInPanel" class="hidden">
+            <p>You are logged in as <strong id="loggedInEmail"></strong>.</p>
+            <button id="logoutButton" class="button secondary">Log out</button>
+          </div>
+
+          <p id="loginMessage" class="form-message" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      NRG Squash — running on enthusiasm, PostgreSQL and questionable recovery routines.
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
