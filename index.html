@@ -69,9 +69,10 @@
           <button id="refreshTableButton" class="button secondary small">Refresh</button>
         </div>
 
-        <div class="notice">
-          Rankings are ordered by Elo. League points are games won plus one
-          participation point for every completed match.
+        <div class="notice scoring-banner">
+          <strong>Office Champ</strong> is the Elo-based ranking used to order the table.
+          <strong>Season Points</strong> are calculated as games won plus
+          <strong>0.5 participation points per completed match</strong>.
         </div>
 
         <div class="table-card">
@@ -85,8 +86,8 @@
                   <th>Won</th>
                   <th>Lost</th>
                   <th>Participation</th>
-                  <th>Points</th>
-                  <th>NRG Rating</th>
+                  <th>Season Points</th>
+                  <th>Office Champ</th>
                 </tr>
               </thead>
               <tbody id="leagueTableBody">
@@ -206,36 +207,38 @@
           <article>
             <h3>2. Participation</h3>
             <p>
-              Each player receives one participation point for every completed match, regardless of the result.
-              This rewards actually arriving, playing and resisting the temptation to cancel because of a
-              suspiciously tight calf.
+              Each player receives <strong>0.5 participation points</strong> for every completed match,
+              regardless of the result. It rewards actually arriving and playing, without allowing attendance
+              alone to overpower the results on court.
             </p>
           </article>
 
           <article>
-            <h3>3. League points</h3>
+            <h3>3. Season Points</h3>
             <p>
-              League points equal games won plus participation points. A 2–1 result therefore produces three
-              league points for the winner and two for the loser: two or one game points, plus one point each
-              for participation.
+              Season Points equal games won plus participation points. A 2–1 result therefore awards
+              <strong>2.5 points</strong> to the winner and <strong>1.5 points</strong> to the loser.
+              A 2–0 result awards 2.5 points to the winner and 0.5 to the loser.
             </p>
           </article>
 
           <article>
-            <h3>4. Ranking</h3>
+            <h3>4. Office Champ</h3>
             <p>
-              Players are ranked by NRG Rating, which uses the Elo system.
-              Beating a higher-rated opponent earns more rating points than beating
-              a lower-rated opponent.
+              Players are ranked by the <strong>Office Champ</strong> rating, which uses the Elo system.
+              Beating a higher-rated player earns more rating points than beating somebody below you,
+              while losing to a stronger player costs fewer points. This measures playing strength rather
+              than simply rewarding whoever has played the most matches.
             </p>
           </article>
 
           <article>
-            <h3>5. Elo settings</h3>
+            <h3>5. How the K-factor Works</h3>
             <p>
-              Ratings move after every confirmed result using a K-factor of 24. Olaf and Rich began slightly
-              above the chasing group to reflect the existing office pecking order; from there, every result
-              adjusts the ratings automatically.
+              The <strong>K-factor</strong> controls how quickly the Office Champ rating changes.
+              A higher K-factor creates larger movements after every match, while a lower value makes
+              the rankings more stable. This league uses a K-factor of <strong>24</strong>: upsets are
+              rewarded properly, but one unusual result should not completely rearrange the table.
             </p>
           </article>
 

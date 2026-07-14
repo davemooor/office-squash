@@ -506,3 +506,33 @@ footer {
 .edit-result-button {
   margin-top: 10px;
 }
+
+
+.scoring-banner strong {
+  color: var(--cyan);
+}
+
+.career-motto {
+  margin: 4px 0 18px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--yellow);
+  background: rgba(255, 201, 83, 0.06);
+  border-radius: 0 10px 10px 0;
+}
+
+.career-motto span {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--yellow);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+.career-motto blockquote {
+  margin: 0;
+  color: #f0f0f5;
+  font-style: italic;
+  line-height: 1.5;
+}

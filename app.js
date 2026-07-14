@@ -54,6 +54,14 @@
     element.className = `form-message ${type}`.trim();
   }
 
+  const PLAYER_MOTTOS = {
+    Olaf: "Pressure is for everyone else.",
+    Rich: "Trust the percentages.",
+    Matthew: "I'm just here for the exercise...",
+    Dave: "One more YouTube video should do it.",
+    Jakes: "I have a plan."
+  };
+
   function initials(name) {
     return String(name || "?")
       .split(/\s+/)
@@ -154,13 +162,18 @@
 
             <p class="profile-bio">${escapeHtml(player.bio || "Biography pending legal approval.")}</p>
 
+            <div class="career-motto">
+              <span>Career Motto</span>
+              <blockquote>“${escapeHtml(PLAYER_MOTTOS[player.display_name] || "The court will decide.")}”</blockquote>
+            </div>
+
             <div class="profile-stats">
-              <div><span>NRG Rating</span><strong>${rating}</strong></div>
+              <div><span>Office Champ</span><strong>${rating}</strong></div>
               <div><span>Played</span><strong>${played}</strong></div>
               <div><span>Won</span><strong>${wins}</strong></div>
               <div><span>Lost</span><strong>${losses}</strong></div>
               <div><span>Win rate</span><strong>${winRate}%</strong></div>
-              <div><span>League points</span><strong>${Number(stats?.league_points || 0)}</strong></div>
+              <div><span>Season points</span><strong>${Number(stats?.league_points || 0).toFixed(1)}</strong></div>
             </div>
           </article>
         `;
@@ -219,7 +232,7 @@
     const leader = rows[0];
     el("leaderCard").innerHTML = `
       <h3>${escapeHtml(leader.display_name)}</h3>
-      <div class="rating">${Math.round(Number(leader.elo_rating))} NRG</div>
+      <div class="rating">${Math.round(Number(leader.elo_rating))} Office Champ</div>
       <p class="muted">
         ${leader.matches_won} wins from ${leader.matches_played} matches.
         Currently unbearable.
@@ -381,14 +394,14 @@
       return;
     }
 
-    const aPoints = gamesA + 1;
-    const bPoints = gamesB + 1;
+    const aPoints = gamesA + 0.5;
+    const bPoints = gamesB + 0.5;
     const winner = gamesA > gamesB ? playerA.display_name : playerB.display_name;
 
     el("matchPreview").innerHTML = `
       <strong>${escapeHtml(playerA.display_name)} ${gamesA}–${gamesB} ${escapeHtml(playerB.display_name)}</strong><br>
-      League points for this match: ${escapeHtml(playerA.display_name)} ${aPoints},
-      ${escapeHtml(playerB.display_name)} ${bPoints}.<br>
+      Season points for this match: ${escapeHtml(playerA.display_name)} ${aPoints.toFixed(1)},
+      ${escapeHtml(playerB.display_name)} ${bPoints.toFixed(1)}.<br>
       Winner: ${escapeHtml(winner)}. Official Elo changes will be calculated by Supabase.
     `;
   }
