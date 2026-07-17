@@ -392,16 +392,14 @@
     button.textContent = "Recalculating…";
 
     const { error } = await supabaseClient.rpc("admin_edit_match", {
-      p_match_id: button.dataset.matchId,
-      p_player_a_games: gamesA,
-      p_player_b_games: gamesB
+      p_match_id: matchId,
+      p_player_a_games: Number(playerAGames),
+      p_player_b_games: Number(playerBGames)
     });
-
+    
     if (error) {
-      console.error(error);
-      window.alert(error.message);
-      button.disabled = false;
-      button.textContent = "Edit result";
+      console.error("Edit match error:", error);
+      alert(`Could not edit result: ${error.message}`);
       return;
     }
 
