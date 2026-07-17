@@ -43,10 +43,21 @@
 
   function formatDate(value) {
     if (!value) return "Unknown date";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "Unknown date";
     return new Intl.DateTimeFormat("en-ZA", {
       dateStyle: "medium",
-      timeStyle: "short"
-    }).format(new Date(value));
+      timeStyle: "short",
+      timeZone: "Africa/Johannesburg"
+    }).format(date);
+  }
+
+  function currentEmail() {
+    return String(state.session?.user?.email || "").trim().toLowerCase();
+  }
+
+  function isAdmin() {
+    return currentEmail() === "dave.moorcroft@nrgex.co.za";
   }
 
   function setMessage(element, message, type = "") {
@@ -149,10 +160,10 @@
     el("playersGrid").innerHTML = state.players
       .map((player) => {
         const stats = state.leaderboard.find((row) => row.player_id === player.id);
-        const wins = Number(stats?.games_won || 0);
-        const losses = Number(stats?.games_lost || 0);
+        const wins = Number(stats?.games_won ?? 0);
+        const losses = Number(stats?.games_lost ?? 0);
         const played = wins + losses;
-        const rating = Math.round(Number(stats?.elo_rating || 1000));
+        const rating = Math.round(Number(stats?.elo_rating ?? 1000));
         const winRate = played ? Math.round((wins / played) * 100) : 0;
 
         return `
@@ -178,7 +189,7 @@
               <div><span>Won</span><strong>${wins}</strong></div>
               <div><span>Lost</span><strong>${losses}</strong></div>
               <div><span>Win rate</span><strong>${winRate}%</strong></div>
-              <div><span>Season points</span><strong>${Number(stats?.league_points || 0).toFixed(1)}</strong></div>
+              <div><span>Season points</span><strong>${Number(stats?.season_points ?? 0).toFixed(1)}</strong></div>
             </div>
           </article>
         `;
@@ -218,20 +229,27 @@
     }
 
     el("leagueTableBody").innerHTML = rows
-      .map(
-        (row, index) => `
+      .map((row, index) => {
+        const wins = Number(row.games_won ?? 0);
+        const losses = Number(row.games_lost ?? 0);
+        const played = Number(row.games_played ?? (wins + losses));
+        const participation = Number(row.participation_points ?? 0);
+        const seasonPoints = Number(row.season_points ?? 0);
+        const rating = Math.round(Number(row.elo_rating ?? 1000));
+
+        return `
           <tr>
             <td><span class="rank-number">${index + 1}</span></td>
             <td><strong>${escapeHtml(row.display_name)}</strong></td>
-            <td>${Number(row.games_won || 0) + Number(row.games_lost || 0)}</td>
-            <td>${row.games_won}</td>
-            <td>${row.games_lost}</td>
-            <td>${row.participation_points}</td>
-            <td>${Number(row.season_points ?? row.league_points).toFixed(1)}</td>
-            <td class="rating-cell">${Math.round(Number(row.elo_rating))}</td>
+            <td>${played}</td>
+            <td>${wins}</td>
+            <td>${losses}</td>
+            <td>${participation.toFixed(1)}</td>
+            <td>${seasonPoints.toFixed(1)}</td>
+            <td class="rating-cell">${rating}</td>
           </tr>
-        `
-      )
+        `;
+      })
       .join("");
 
     const leader = rows[0];
@@ -239,8 +257,8 @@
       <h3>${escapeHtml(leader.display_name)}</h3>
       <div class="rating">${Math.round(Number(leader.elo_rating))} Office Champ</div>
       <p class="muted">
-        ${leader.games_won} games won, ${leader.games_lost} games lost,
-        ${Number(leader.games_won || 0) + Number(leader.games_lost || 0)} games played.
+        ${Number(leader.games_won ?? 0)} games won, ${Number(leader.games_lost ?? 0)} games lost,
+        ${Number(leader.games_played ?? (Number(leader.games_won ?? 0) + Number(leader.games_lost ?? 0)))} games played.
       </p>
     `;
   }
@@ -298,15 +316,25 @@
             </p>
             ${match.notes ? `<p class="muted">${escapeHtml(match.notes)}</p>` : ""}
             ${
-              state.membership?.email === "dave.moorcroft@nrgex.co.za"
-                ? `<button
-                    class="button secondary small edit-result-button"
-                    data-match-id="${match.id}"
-                    data-player-a="${escapeHtml(match.player_a_name)}"
-                    data-player-b="${escapeHtml(match.player_b_name)}"
-                    data-games-a="${match.player_a_games}"
-                    data-games-b="${match.player_b_games}"
-                  >Edit result</button>`
+              isAdmin()
+                ? `<div class="result-actions">
+                    <button
+                      class="button secondary small edit-result-button"
+                      data-match-id="${match.id}"
+                      data-player-a="${escapeHtml(match.player_a_name)}"
+                      data-player-b="${escapeHtml(match.player_b_name)}"
+                      data-games-a="${match.player_a_games}"
+                      data-games-b="${match.player_b_games}"
+                    >Edit result</button>
+                    <button
+                      class="button danger small delete-result-button"
+                      data-match-id="${match.id}"
+                      data-player-a="${escapeHtml(match.player_a_name)}"
+                      data-player-b="${escapeHtml(match.player_b_name)}"
+                      data-games-a="${match.player_a_games}"
+                      data-games-b="${match.player_b_games}"
+                    >Delete</button>
+                  </div>`
                 : ""
             }
           </article>
@@ -317,10 +345,14 @@
     document.querySelectorAll(".edit-result-button").forEach((button) => {
       button.addEventListener("click", () => editResult(button));
     });
+
+    document.querySelectorAll(".delete-result-button").forEach((button) => {
+      button.addEventListener("click", () => deleteResult(button));
+    });
   }
 
   async function editResult(button) {
-    if (!state.session || state.membership?.email !== "dave.moorcroft@nrgex.co.za") {
+    if (!state.session || !isAdmin()) {
       window.alert("Only Dave's administrator login can correct historical results.");
       return;
     }
@@ -375,6 +407,41 @@
 
     await Promise.all([loadLeaderboard(), loadResults()]);
     window.alert("Result corrected and Elo history recalculated.");
+  }
+
+
+  async function deleteResult(button) {
+    if (!state.session || !isAdmin()) {
+      window.alert("Only Dave's administrator login can delete results.");
+      return;
+    }
+
+    const description = `${button.dataset.playerA} ${button.dataset.gamesA}–${button.dataset.gamesB} ${button.dataset.playerB}`;
+    const confirmed = window.confirm(
+      `Delete this result permanently?
+
+${description}
+
+All standings and Elo ratings will be recalculated.`
+    );
+    if (!confirmed) return;
+
+    button.disabled = true;
+    button.textContent = "Deleting…";
+
+    const { error } = await supabaseClient.rpc("admin_delete_match", {
+      p_match_id: button.dataset.matchId
+    });
+
+    if (error) {
+      console.error(error);
+      window.alert(error.message);
+      button.disabled = false;
+      button.textContent = "Delete";
+      return;
+    }
+
+    await Promise.all([loadLeaderboard(), loadResults()]);
   }
 
   function updateMatchPreview() {
