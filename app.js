@@ -153,8 +153,7 @@
         const losses = Number(stats?.games_lost || 0);
         const played = wins + losses;
         const rating = Math.round(Number(stats?.elo_rating || 1000));
-        const totalGames = wins + losses;
-        const winRate = totalGames ? Math.round((wins / totalGames) * 100) : 0;
+        const winRate = played ? Math.round((wins / played) * 100) : 0;
 
         return `
           <article class="player-card profile-card">
@@ -240,8 +239,8 @@
       <h3>${escapeHtml(leader.display_name)}</h3>
       <div class="rating">${Math.round(Number(leader.elo_rating))} Office Champ</div>
       <p class="muted">
-       ${leader.games_won} games won, ${leader.games_lost} games lost,
-       ${Number(leader.games_won || 0) + Number(leader.games_lost || 0)} games played.
+        ${leader.games_won} games won, ${leader.games_lost} games lost,
+        ${Number(leader.games_won || 0) + Number(leader.games_lost || 0)} games played.
       </p>
     `;
   }
@@ -344,18 +343,9 @@
       !Number.isInteger(gamesA) ||
       !Number.isInteger(gamesB) ||
       gamesA < 0 ||
-      gamesB < 0 ||
-    if (
-      !Number.isInteger(gamesA) ||
-      !Number.isInteger(gamesB) ||
-      gamesA < 0 ||
       gamesB < 0
-) {
-  window.alert("Enter valid whole-number game totals.");
-  return;
-}
     ) {
-      window.alert("Enter valid whole-number game totals. The match cannot be drawn.");
+      window.alert("Enter valid whole-number game totals.");
       return;
     }
 
@@ -403,20 +393,20 @@
       return;
     }
 
-    if (gamesA === gamesB) {
-      el("matchPreview").textContent = "The match cannot be drawn.";
-      return;
-    }
-
     const aPoints = gamesA + 0.5;
     const bPoints = gamesB + 0.5;
-    const winner = gamesA > gamesB ? playerA.display_name : playerB.display_name;
+    const outcome =
+      gamesA > gamesB
+        ? `Winner: ${playerA.display_name}`
+        : gamesB > gamesA
+          ? `Winner: ${playerB.display_name}`
+          : "Result: Draw";
 
     el("matchPreview").innerHTML = `
       <strong>${escapeHtml(playerA.display_name)} ${gamesA}–${gamesB} ${escapeHtml(playerB.display_name)}</strong><br>
       Season points for this match: ${escapeHtml(playerA.display_name)} ${aPoints.toFixed(1)},
       ${escapeHtml(playerB.display_name)} ${bPoints.toFixed(1)}.<br>
-      Winner: ${escapeHtml(winner)}. Official Elo changes will be calculated by Supabase.
+      ${escapeHtml(outcome)}. Official Elo changes will be calculated by Supabase.
     `;
   }
 
@@ -444,8 +434,8 @@
       return;
     }
 
-    if (!Number.isInteger(gamesA) || !Number.isInteger(gamesB) || gamesA < 0 || gamesB < 0 || gamesA === gamesB) {
-      setMessage(el("formMessage"), "Enter a valid non-drawn match score.", "error");
+    if (!Number.isInteger(gamesA) || !Number.isInteger(gamesB) || gamesA < 0 || gamesB < 0) {
+      setMessage(el("formMessage"), "Enter valid whole-number game totals.", "error");
       return;
     }
 
