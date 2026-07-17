@@ -207,6 +207,13 @@
     renderLeaderboard(data || []);
   }
 
+  function isAdmin() {
+    return Boolean(
+      state.session &&
+      String(state.session.user?.email || "").toLowerCase() === "dave.moorcroft@nrgex.co.za"
+    );
+  }
+
   function renderLeaderboard(rows) {
     state.leaderboard = rows || [];
     renderPlayers();
@@ -224,8 +231,8 @@
             <td><span class="rank-number">${index + 1}</span></td>
             <td><strong>${escapeHtml(row.display_name)}</strong></td>
             <td>${Number(row.games_won || 0) + Number(row.games_lost || 0)}</td>
-            <td>${row.games_won}</td>
-            <td>${row.games_lost}</td>
+            <td>${Number(row.games_won || 0)}</td>
+            <td>${Number(row.games_lost || 0)}</td>
             <td>${row.participation_points}</td>
             <td>${Number(row.season_points ?? row.league_points).toFixed(1)}</td>
             <td class="rating-cell">${Math.round(Number(row.elo_rating))}</td>
@@ -239,7 +246,7 @@
       <h3>${escapeHtml(leader.display_name)}</h3>
       <div class="rating">${Math.round(Number(leader.elo_rating))} Office Champ</div>
       <p class="muted">
-        ${leader.games_won} games won, ${leader.games_lost} games lost,
+        ${Number(leader.games_won || 0)} games won, ${Number(leader.games_lost || 0)} games lost,
         ${Number(leader.games_won || 0) + Number(leader.games_lost || 0)} games played.
       </p>
     `;
@@ -298,7 +305,7 @@
             </p>
             ${match.notes ? `<p class="muted">${escapeHtml(match.notes)}</p>` : ""}
             ${
-              state.membership?.email === "dave.moorcroft@nrgex.co.za"
+              isAdmin()
                 ? `<div class="result-actions">
                     <button
                       class="button secondary small edit-result-button"
@@ -334,7 +341,7 @@
   }
 
   async function deleteResult(button) {
-    if (!state.session || state.membership?.email !== "dave.moorcroft@nrgex.co.za") {
+    if (!isAdmin()) {
       window.alert("Only Dave's administrator login can delete historical results.");
       return;
     }
@@ -366,7 +373,7 @@
   }
 
   async function editResult(button) {
-    if (!state.session || state.membership?.email !== "dave.moorcroft@nrgex.co.za") {
+    if (!isAdmin()) {
       window.alert("Only Dave's administrator login can correct historical results.");
       return;
     }
