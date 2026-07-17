@@ -224,7 +224,7 @@
           <tr>
             <td><span class="rank-number">${index + 1}</span></td>
             <td><strong>${escapeHtml(row.display_name)}</strong></td>
-            <td>${row.matches_played}</td>
+            <td>${Number(row.games_won || 0) + Number(row.games_lost || 0)}</td>
             <td>${row.games_won}</td>
             <td>${row.games_lost}</td>
             <td>${row.participation_points}</td>
