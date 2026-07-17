@@ -207,13 +207,6 @@
     renderLeaderboard(data || []);
   }
 
-  function isAdmin() {
-    return Boolean(
-      state.session &&
-      String(state.session.user?.email || "").toLowerCase() === "dave.moorcroft@nrgex.co.za"
-    );
-  }
-
   function renderLeaderboard(rows) {
     state.leaderboard = rows || [];
     renderPlayers();
@@ -231,8 +224,8 @@
             <td><span class="rank-number">${index + 1}</span></td>
             <td><strong>${escapeHtml(row.display_name)}</strong></td>
             <td>${Number(row.games_won || 0) + Number(row.games_lost || 0)}</td>
-            <td>${Number(row.games_won || 0)}</td>
-            <td>${Number(row.games_lost || 0)}</td>
+            <td>${row.games_won}</td>
+            <td>${row.games_lost}</td>
             <td>${row.participation_points}</td>
             <td>${Number(row.season_points ?? row.league_points).toFixed(1)}</td>
             <td class="rating-cell">${Math.round(Number(row.elo_rating))}</td>
@@ -246,7 +239,7 @@
       <h3>${escapeHtml(leader.display_name)}</h3>
       <div class="rating">${Math.round(Number(leader.elo_rating))} Office Champ</div>
       <p class="muted">
-        ${Number(leader.games_won || 0)} games won, ${Number(leader.games_lost || 0)} games lost,
+        ${leader.games_won} games won, ${leader.games_lost} games lost,
         ${Number(leader.games_won || 0) + Number(leader.games_lost || 0)} games played.
       </p>
     `;
@@ -305,25 +298,15 @@
             </p>
             ${match.notes ? `<p class="muted">${escapeHtml(match.notes)}</p>` : ""}
             ${
-              isAdmin()
-                ? `<div class="result-actions">
-                    <button
-                      class="button secondary small edit-result-button"
-                      data-match-id="${match.id}"
-                      data-player-a="${escapeHtml(match.player_a_name)}"
-                      data-player-b="${escapeHtml(match.player_b_name)}"
-                      data-games-a="${match.player_a_games}"
-                      data-games-b="${match.player_b_games}"
-                    >Edit result</button>
-                    <button
-                      class="button danger small delete-result-button"
-                      data-match-id="${match.id}"
-                      data-player-a="${escapeHtml(match.player_a_name)}"
-                      data-player-b="${escapeHtml(match.player_b_name)}"
-                      data-games-a="${match.player_a_games}"
-                      data-games-b="${match.player_b_games}"
-                    >Delete</button>
-                  </div>`
+              state.membership?.email === "dave.moorcroft@nrgex.co.za"
+                ? `<button
+                    class="button secondary small edit-result-button"
+                    data-match-id="${match.id}"
+                    data-player-a="${escapeHtml(match.player_a_name)}"
+                    data-player-b="${escapeHtml(match.player_b_name)}"
+                    data-games-a="${match.player_a_games}"
+                    data-games-b="${match.player_b_games}"
+                  >Edit result</button>`
                 : ""
             }
           </article>
@@ -334,46 +317,10 @@
     document.querySelectorAll(".edit-result-button").forEach((button) => {
       button.addEventListener("click", () => editResult(button));
     });
-
-    document.querySelectorAll(".delete-result-button").forEach((button) => {
-      button.addEventListener("click", () => deleteResult(button));
-    });
-  }
-
-  async function deleteResult(button) {
-    if (!isAdmin()) {
-      window.alert("Only Dave's administrator login can delete historical results.");
-      return;
-    }
-
-    const description = `${button.dataset.playerA} ${button.dataset.gamesA}–${button.dataset.gamesB} ${button.dataset.playerB}`;
-    const confirmed = window.confirm(
-      `Delete ${description}?\n\nThis permanently removes the match and recalculates all league statistics and Elo ratings.`
-    );
-
-    if (!confirmed) return;
-
-    button.disabled = true;
-    button.textContent = "Deleting…";
-
-    const { error } = await supabaseClient.rpc("admin_delete_match", {
-      p_match_id: button.dataset.matchId
-    });
-
-    if (error) {
-      console.error(error);
-      window.alert(error.message);
-      button.disabled = false;
-      button.textContent = "Delete";
-      return;
-    }
-
-    await Promise.all([loadLeaderboard(), loadResults()]);
-    window.alert("Result deleted and league history recalculated.");
   }
 
   async function editResult(button) {
-    if (!isAdmin()) {
+    if (!state.session || state.membership?.email !== "dave.moorcroft@nrgex.co.za") {
       window.alert("Only Dave's administrator login can correct historical results.");
       return;
     }
