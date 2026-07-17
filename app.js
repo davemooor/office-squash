@@ -149,9 +149,9 @@
     el("playersGrid").innerHTML = state.players
       .map((player) => {
         const stats = state.leaderboard.find((row) => row.player_id === player.id);
-        const played = Number(stats?.matches_played || 0);
         const wins = Number(stats?.games_won || 0);
         const losses = Number(stats?.games_lost || 0);
+        const played = wins + losses;
         const rating = Math.round(Number(stats?.elo_rating || 1000));
         const totalGames = wins + losses;
         const winRate = totalGames ? Math.round((wins / totalGames) * 100) : 0;
