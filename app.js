@@ -240,7 +240,8 @@
       <h3>${escapeHtml(leader.display_name)}</h3>
       <div class="rating">${Math.round(Number(leader.elo_rating))} Office Champ</div>
       <p class="muted">
-        ${leader.games_won} games won, ${leader.games_lost} games lost from ${leader.matches_played} matches.
+       ${leader.games_won} games won, ${leader.games_lost} games lost,
+       ${Number(leader.games_won || 0) + Number(leader.games_lost || 0)} games played.
       </p>
     `;
   }
