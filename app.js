@@ -56,7 +56,7 @@
 
   const PLAYER_MOTTOS = {
     Olaf: "Pressure is for everyone else.",
-    Rich: "Trust the percentages.",
+    Richard: "Trust the percentages.",
     Matthew: "I'm just here for the exercise...",
     Dave: "One more YouTube video should do it.",
     Jakes: "I have a plan."
@@ -110,9 +110,9 @@
 
     const { data, error } = await supabaseClient
       .from("players")
-      .select("id, display_name, nickname, bio, is_active")
+      .select("id, name, nickname, biography, current_rating, photo_url, is_active")
       .eq("is_active", true)
-      .order("display_name");
+      .order("name");
 
     if (error) {
       console.error(error);
@@ -120,7 +120,12 @@
       return;
     }
 
-    state.players = data || [];
+    state.players = (data || []).map(player => ({
+      ...player,
+      display_name: player.name,
+      bio: player.biography,
+      elo_rating: player.current_rating
+    }));
     populatePlayerSelects();
     renderPlayers();
   }
@@ -145,10 +150,11 @@
       .map((player) => {
         const stats = state.leaderboard.find((row) => row.player_id === player.id);
         const played = Number(stats?.matches_played || 0);
-        const wins = Number(stats?.matches_won || 0);
-        const losses = Number(stats?.matches_lost || 0);
+        const wins = Number(stats?.games_won || 0);
+        const losses = Number(stats?.games_lost || 0);
         const rating = Math.round(Number(stats?.elo_rating || 1000));
-        const winRate = played ? Math.round((wins / played) * 100) : 0;
+        const totalGames = wins + losses;
+        const winRate = totalGames ? Math.round((wins / totalGames) * 100) : 0;
 
         return `
           <article class="player-card profile-card">
@@ -219,10 +225,10 @@
             <td><span class="rank-number">${index + 1}</span></td>
             <td><strong>${escapeHtml(row.display_name)}</strong></td>
             <td>${row.matches_played}</td>
-            <td>${row.matches_won}</td>
-            <td>${row.matches_lost}</td>
+            <td>${row.games_won}</td>
+            <td>${row.games_lost}</td>
             <td>${row.participation_points}</td>
-            <td>${row.league_points}</td>
+            <td>${Number(row.season_points ?? row.league_points).toFixed(1)}</td>
             <td class="rating-cell">${Math.round(Number(row.elo_rating))}</td>
           </tr>
         `
@@ -234,8 +240,7 @@
       <h3>${escapeHtml(leader.display_name)}</h3>
       <div class="rating">${Math.round(Number(leader.elo_rating))} Office Champ</div>
       <p class="muted">
-        ${leader.matches_won} wins from ${leader.matches_played} matches.
-        Currently unbearable.
+        ${leader.games_won} games won, ${leader.games_lost} games lost from ${leader.matches_played} matches.
       </p>
     `;
   }
