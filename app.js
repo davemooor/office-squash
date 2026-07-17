@@ -345,7 +345,15 @@
       !Number.isInteger(gamesB) ||
       gamesA < 0 ||
       gamesB < 0 ||
-      gamesA === gamesB
+    if (
+      !Number.isInteger(gamesA) ||
+      !Number.isInteger(gamesB) ||
+      gamesA < 0 ||
+      gamesB < 0
+) {
+  window.alert("Enter valid whole-number game totals.");
+  return;
+}
     ) {
       window.alert("Enter valid whole-number game totals. The match cannot be drawn.");
       return;
