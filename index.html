@@ -27,6 +27,7 @@
         <a href="#results">Results</a>
         <a href="#players">Players</a>
         <a href="#rules">Rules</a>
+        <a href="#elo">How Elo Works</a>
         <a href="#login" id="loginNavLink">Login</a>
       </nav>
     </div>
@@ -237,7 +238,7 @@
             <p>
               The <strong>K-factor</strong> controls how quickly the Office Champ rating changes.
               A higher K-factor creates larger movements after every match, while a lower value makes
-              the rankings more stable. This league uses a K-factor of <strong>24</strong>: upsets are
+              the rankings more stable. This league uses a K-factor of <strong>20</strong>: upsets are
               rewarded properly, but one unusual result should not completely rearrange the table.
             </p>
           </article>
@@ -251,6 +252,139 @@
             </p>
           </article>
         </div>
+      </div>
+    </section>
+
+    <section id="elo" class="page-section">
+      <div class="container elo-page">
+        <p class="eyebrow">THE MATHEMATICS BEHIND THE ARGUMENTS</p>
+        <h2>How the Office Champ Elo Rating Works</h2>
+        <p class="intro">
+          Elo is a rating system, not a league-points system. It estimates playing strength from every recorded
+          match. Everyone starts at <strong>1000</strong>. After each match, rating points move from the loser to
+          the winner. The amount depends on how likely each player was to win before the match.
+        </p>
+
+        <div class="elo-summary-grid">
+          <article class="elo-summary-card">
+            <span>Starting rating</span>
+            <strong>1000</strong>
+          </article>
+          <article class="elo-summary-card">
+            <span>K-factor</span>
+            <strong>20</strong>
+          </article>
+          <article class="elo-summary-card">
+            <span>Current input</span>
+            <strong>Match win or loss</strong>
+          </article>
+          <article class="elo-summary-card">
+            <span>Total rating</span>
+            <strong>Always conserved</strong>
+          </article>
+        </div>
+
+        <div class="elo-content-grid">
+          <article class="elo-panel">
+            <p class="card-label">STEP 1</p>
+            <h3>Calculate the expected result</h3>
+            <p>Before a match, the system calculates Player A's expected score:</p>
+            <div class="formula-block">
+              <span>E<sub>A</sub> =</span>
+              <span class="fraction"><span>1</span><span>1 + 10<sup>(R<sub>B</sub> − R<sub>A</sub>) / 400</sup></span></span>
+            </div>
+            <p class="muted">
+              R<sub>A</sub> and R<sub>B</sub> are the players' ratings before the match. Player B's expected score is
+              1 − E<sub>A</sub>. The two probabilities therefore add up to 100%.
+            </p>
+          </article>
+
+          <article class="elo-panel">
+            <p class="card-label">STEP 2</p>
+            <h3>Enter the actual result</h3>
+            <p>The current system treats the entire match as a simple win or loss:</p>
+            <div class="actual-score-grid">
+              <div><span>Winner</span><strong>S = 1</strong></div>
+              <div><span>Loser</span><strong>S = 0</strong></div>
+            </div>
+            <div class="notice warning elo-note">
+              The entered game score decides who won and updates Games Won, Games Lost and Season Points.
+              It does <strong>not</strong> currently change the Elo margin. A 3–0 win and a 3–2 win count as the
+              same Elo match result.
+            </div>
+          </article>
+
+          <article class="elo-panel">
+            <p class="card-label">STEP 3</p>
+            <h3>Update both ratings</h3>
+            <p>The new rating is calculated with:</p>
+            <div class="formula-block formula-wide">
+              R′ = R + K(S − E)
+            </div>
+            <p class="muted">
+              R is the old rating, R′ is the new rating, K is 20, S is the actual result and E is the expected result.
+              The winner gains exactly what the loser gives up, apart from small display-rounding differences.
+            </p>
+          </article>
+        </div>
+
+        <div class="elo-examples">
+          <article class="elo-example">
+            <p class="card-label">EXAMPLE 1 · EVEN MATCH</p>
+            <h3>Dave 1000 vs Jakes 1000</h3>
+            <p>Both players are expected to have a 50% chance. Dave wins.</p>
+            <div class="calculation-lines">
+              <code>Dave: 1000 + 20 × (1 − 0.50) = 1010</code>
+              <code>Jakes: 1000 + 20 × (0 − 0.50) = 990</code>
+            </div>
+          </article>
+
+          <article class="elo-example">
+            <p class="card-label">EXAMPLE 2 · FAVOURITE WINS</p>
+            <h3>Olaf 1100 vs Matthew 900</h3>
+            <p>Olaf is expected to win roughly 76% of the time. Olaf wins, so the result is not surprising.</p>
+            <div class="calculation-lines">
+              <code>Olaf: 1100 + 20 × (1 − 0.76) ≈ 1105</code>
+              <code>Matthew: 900 + 20 × (0 − 0.24) ≈ 895</code>
+            </div>
+          </article>
+
+          <article class="elo-example">
+            <p class="card-label">EXAMPLE 3 · UPSET</p>
+            <h3>Matthew 900 vs Olaf 1100</h3>
+            <p>Matthew is expected to win only roughly 24% of the time. Matthew wins, so the ratings move much more.</p>
+            <div class="calculation-lines">
+              <code>Matthew: 900 + 20 × (1 − 0.24) ≈ 915</code>
+              <code>Olaf: 1100 + 20 × (0 − 0.76) ≈ 1085</code>
+            </div>
+          </article>
+        </div>
+
+        <article class="elo-panel elo-rich-example">
+          <p class="card-label">THE RICH VS OLAF QUESTION</p>
+          <h3>How can Rich rank above Olaf after losing to him?</h3>
+          <p>
+            Elo considers the complete sequence of results, not only the latest head-to-head match. Olaf gained rating
+            when he beat Rich. Rich then gained rating from several later wins against other players. Those gains can
+            eventually move Rich above Olaf even though Olaf remains unbeaten and won their direct match.
+          </p>
+          <p>
+            This does not mean the system has forgotten Olaf's win. That result remains part of both ratings. It means
+            Rich has supplied more subsequent evidence through additional matches. Elo measures the accumulated rating
+            produced by all results; it does not enforce a rule that the head-to-head winner must always remain above
+            the loser.
+          </p>
+          <div class="elo-distinction">
+            <div>
+              <span>Season Points</span>
+              <strong>Who has accumulated the best season?</strong>
+            </div>
+            <div>
+              <span>Office Champ Elo</span>
+              <strong>What strength estimate follows from all recorded match results?</strong>
+            </div>
+          </div>
+        </article>
       </div>
     </section>
 
