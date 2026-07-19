@@ -6,7 +6,7 @@
     "richard.wright@nrgex.co.za",
     "jakes.botha@nrgex.co.za",
     "olaf.bergh@nrgex.co.za",
-    "matthew.wright@nrgex.co.za"
+    "matthew.wright@nrgex.co.za",
     "rob.wright@nrgex.co.za"
     
   ]);
