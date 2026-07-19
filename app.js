@@ -7,6 +7,8 @@
     "jakes.botha@nrgex.co.za",
     "olaf.bergh@nrgex.co.za",
     "matthew.wright@nrgex.co.za"
+    "rob.wright@nrgex.co.za"
+    
   ]);
 
   const config = window.NRG_CONFIG || {};
