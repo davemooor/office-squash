@@ -768,3 +768,29 @@ textarea:focus {
   background: rgba(223,118,89,0.38);
   color: var(--text);
 }
+
+.home-leaders {
+  display: grid;
+  gap: 18px;
+}
+
+.home-leader-block {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.home-leader-block:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.home-leader-block h3 {
+  margin: 8px 0 4px;
+  font-size: 2rem;
+}
+
+.home-leader-block .rating {
+  color: var(--teal);
+  font-size: 1.3rem;
+  font-weight: 900;
+}
