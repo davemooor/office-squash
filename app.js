@@ -214,7 +214,8 @@
     if (error) {
       console.error(error);
       el("leagueTableBody").innerHTML = `<tr><td colspan="8">Could not load the table: ${escapeHtml(error.message)}</td></tr>`;
-      el("leaderCard").textContent = "Standings unavailable.";
+      el("seasonLeaderCard").textContent = "Standings unavailable.";
+      el("eloLeaderCard").textContent = "Standings unavailable.";
       return;
     }
 
@@ -227,7 +228,8 @@
 
     if (!state.leaderboard.length) {
       el("leagueTableBody").innerHTML = `<tr><td colspan="8">No results yet. The league remains scientifically inconclusive.</td></tr>`;
-      el("leaderCard").innerHTML = `<p>No leader yet.</p>`;
+      el("seasonLeaderCard").innerHTML = `<p>No season leader yet.</p>`;
+      el("eloLeaderCard").innerHTML = `<p>No Elo leader yet.</p>`;
       return;
     }
 
@@ -271,29 +273,45 @@
       })
       .join("");
 
-    const leader = sortedRows[0];
+    const seasonLeader = [...state.leaderboard].sort((a, b) => {
+      return (
+        Number(b.season_points ?? 0) - Number(a.season_points ?? 0) ||
+        Number(b.elo_rating ?? 1000) - Number(a.elo_rating ?? 1000) ||
+        String(a.display_name ?? "").localeCompare(String(b.display_name ?? ""))
+      );
+    })[0];
 
-    if (state.tableSort === "elo_rating") {
-      el("leaderCard").innerHTML = `
-        <p class="card-label">ELO LEADER</p>
-        <h3>${escapeHtml(leader.display_name)}</h3>
-        <div class="rating">${Math.round(Number(leader.elo_rating ?? 1000))} Elo</div>
-        <p class="muted">
-          ${Number(leader.season_points ?? 0).toFixed(1)} season points,
-          ${Number(leader.games_won ?? 0)} games won and ${Number(leader.games_lost ?? 0)} games lost.
-        </p>
-      `;
-    } else {
-      el("leaderCard").innerHTML = `
-        <p class="card-label">SEASON POINTS LEADER</p>
-        <h3>${escapeHtml(leader.display_name)}</h3>
-        <div class="rating">${Number(leader.season_points ?? 0).toFixed(1)} points</div>
-        <p class="muted">
-          Elo rating ${Math.round(Number(leader.elo_rating ?? 1000))},
-          ${Number(leader.games_won ?? 0)} games won and ${Number(leader.games_lost ?? 0)} games lost.
-        </p>
-      `;
-    }
+    const eloLeader = [...state.leaderboard].sort((a, b) => {
+      return (
+        Number(b.elo_rating ?? 1000) - Number(a.elo_rating ?? 1000) ||
+        Number(b.season_points ?? 0) - Number(a.season_points ?? 0) ||
+        String(a.display_name ?? "").localeCompare(String(b.display_name ?? ""))
+      );
+    })[0];
+
+    el("seasonLeaderCard").classList.remove("loading");
+    el("seasonLeaderCard").innerHTML = `
+      <p class="card-label">SEASON POINTS LEADER</p>
+      <h3>${escapeHtml(seasonLeader.display_name)}</h3>
+      <div class="rating">${Number(seasonLeader.season_points ?? 0).toFixed(1)} points</div>
+      <p class="muted">
+        Elo ${Math.round(Number(seasonLeader.elo_rating ?? 1000))},
+        ${Number(seasonLeader.games_won ?? 0)} games won and
+        ${Number(seasonLeader.games_lost ?? 0)} games lost.
+      </p>
+    `;
+
+    el("eloLeaderCard").classList.remove("loading");
+    el("eloLeaderCard").innerHTML = `
+      <p class="card-label">ELO LEADER</p>
+      <h3>${escapeHtml(eloLeader.display_name)}</h3>
+      <div class="rating">${Math.round(Number(eloLeader.elo_rating ?? 1000))} Elo</div>
+      <p class="muted">
+        ${Number(eloLeader.season_points ?? 0).toFixed(1)} season points,
+        ${Number(eloLeader.games_won ?? 0)} games won and
+        ${Number(eloLeader.games_lost ?? 0)} games lost.
+      </p>
+    `;
   }
 
   async function loadResults() {
@@ -683,7 +701,8 @@ All standings and Elo ratings will be recalculated.`
   function renderConfigurationMessage() {
     const message = "Supabase is not configured yet. Add your project URL and publishable key to config.js.";
     el("leagueTableBody").innerHTML = `<tr><td colspan="8">${escapeHtml(message)}</td></tr>`;
-    el("leaderCard").textContent = message;
+    el("seasonLeaderCard").textContent = message;
+    el("eloLeaderCard").textContent = message;
     el("resultsList").innerHTML = `<article class="result-card">${escapeHtml(message)}</article>`;
     el("playersGrid").innerHTML = `<article class="player-card">${escapeHtml(message)}</article>`;
   }
