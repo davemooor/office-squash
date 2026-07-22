@@ -28,6 +28,7 @@
   const state = {
     players: [],
     leaderboard: [],
+    tableSort: "season_points",
     session: null,
     membership: null
   };
@@ -72,7 +73,8 @@
     Richard: "Trust the percentages.",
     Matthew: "I'm just here for the exercise...",
     Dave: "One more YouTube video should do it.",
-    Jakes: "I have a plan."
+    Jakes: "I have a plan.",
+    Rob: "Wright place, wrong time."
   };
 
   function initials(name) {
@@ -207,8 +209,7 @@
 
     const { data, error } = await supabaseClient
       .from("leaderboard")
-      .select("*")
-      .order("elo_rating", { ascending: false });
+      .select("*");
 
     if (error) {
       console.error(error);
@@ -224,13 +225,29 @@
     state.leaderboard = rows || [];
     renderPlayers();
 
-    if (!rows.length) {
+    if (!state.leaderboard.length) {
       el("leagueTableBody").innerHTML = `<tr><td colspan="8">No results yet. The league remains scientifically inconclusive.</td></tr>`;
       el("leaderCard").innerHTML = `<p>No leader yet.</p>`;
       return;
     }
 
-    el("leagueTableBody").innerHTML = rows
+    const sortedRows = [...state.leaderboard].sort((a, b) => {
+      if (state.tableSort === "elo_rating") {
+        return (
+          Number(b.elo_rating ?? 1000) - Number(a.elo_rating ?? 1000) ||
+          Number(b.season_points ?? 0) - Number(a.season_points ?? 0) ||
+          String(a.display_name ?? "").localeCompare(String(b.display_name ?? ""))
+        );
+      }
+
+      return (
+        Number(b.season_points ?? 0) - Number(a.season_points ?? 0) ||
+        Number(b.elo_rating ?? 1000) - Number(a.elo_rating ?? 1000) ||
+        String(a.display_name ?? "").localeCompare(String(b.display_name ?? ""))
+      );
+    });
+
+    el("leagueTableBody").innerHTML = sortedRows
       .map((row, index) => {
         const wins = Number(row.games_won ?? 0);
         const losses = Number(row.games_lost ?? 0);
@@ -254,15 +271,29 @@
       })
       .join("");
 
-    const leader = rows[0];
-    el("leaderCard").innerHTML = `
-      <h3>${escapeHtml(leader.display_name)}</h3>
-      <div class="rating">${Math.round(Number(leader.elo_rating))} Office Champ</div>
-      <p class="muted">
-        ${Number(leader.games_won ?? 0)} games won, ${Number(leader.games_lost ?? 0)} games lost,
-        ${Number(leader.games_played ?? (Number(leader.games_won ?? 0) + Number(leader.games_lost ?? 0)))} games played.
-      </p>
-    `;
+    const leader = sortedRows[0];
+
+    if (state.tableSort === "elo_rating") {
+      el("leaderCard").innerHTML = `
+        <p class="card-label">ELO LEADER</p>
+        <h3>${escapeHtml(leader.display_name)}</h3>
+        <div class="rating">${Math.round(Number(leader.elo_rating ?? 1000))} Elo</div>
+        <p class="muted">
+          ${Number(leader.season_points ?? 0).toFixed(1)} season points,
+          ${Number(leader.games_won ?? 0)} games won and ${Number(leader.games_lost ?? 0)} games lost.
+        </p>
+      `;
+    } else {
+      el("leaderCard").innerHTML = `
+        <p class="card-label">SEASON POINTS LEADER</p>
+        <h3>${escapeHtml(leader.display_name)}</h3>
+        <div class="rating">${Number(leader.season_points ?? 0).toFixed(1)} points</div>
+        <p class="muted">
+          Elo rating ${Math.round(Number(leader.elo_rating ?? 1000))},
+          ${Number(leader.games_won ?? 0)} games won and ${Number(leader.games_lost ?? 0)} games lost.
+        </p>
+      `;
+    }
   }
 
   async function loadResults() {
@@ -666,12 +697,20 @@ All standings and Elo ratings will be recalculated.`
     el("matchForm").addEventListener("submit", submitMatch);
     el("refreshTableButton").addEventListener("click", loadLeaderboard);
     el("refreshResultsButton").addEventListener("click", loadResults);
+
+    el("tableSortSelect").addEventListener("change", (event) => {
+      state.tableSort = event.target.value === "elo_rating"
+        ? "elo_rating"
+        : "season_points";
+      renderLeaderboard(state.leaderboard);
+    });
   }
 
   async function init() {
     setupNavigation();
     setDefaultDate();
     setupEvents();
+    el("tableSortSelect").value = state.tableSort;
     await setupAuth();
 
     if (supabaseClient) {
