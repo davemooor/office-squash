@@ -466,7 +466,6 @@
               <span>${escapeHtml(match.player_b_name)}</span>
               <strong>${match.player_b_games}</strong>
             </div>
-            <p class="result-meta">${escapeHtml(match.venue || "Venue not recorded")}</p>
             <p>
               <span class="rating-change ${aChange >= 0 ? "positive" : "negative"}">
                 ${escapeHtml(match.player_a_name)} ${aChange >= 0 ? "+" : ""}${aChange.toFixed(1)}
@@ -676,7 +675,7 @@ All standings and Elo ratings will be recalculated.`
       p_player_a_games: gamesA,
       p_player_b_games: gamesB,
       p_played_at: new Date(el("playedAt").value).toISOString(),
-      p_venue: el("venue").value.trim() || null,
+      p_venue: null,
       p_notes: el("notes").value.trim() || null
     });
 
