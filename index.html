@@ -43,7 +43,7 @@
             <span>Over-Engineered</span>
             Squash League!
           </h1>
-          <h2>5 Players. 1 League. Lots of Excuses.</h2>
+          <h2>6 Players. 1 League. Lots of Excuses.</h2>
           <p class="intro">
             Live results, permanent records and room for plenty of debate.
           </p>
@@ -67,13 +67,22 @@
             <p class="eyebrow">THE IMPORTANT BIT</p>
             <h2>League Table</h2>
           </div>
-          <button id="refreshTableButton" class="button secondary small">Refresh</button>
+          <div class="table-controls">
+            <label class="sort-control" for="tableSortSelect">
+              Sort table by
+              <select id="tableSortSelect">
+                <option value="season_points" selected>Season Points</option>
+                <option value="elo_rating">Elo Rating</option>
+              </select>
+            </label>
+            <button id="refreshTableButton" class="button secondary small">Refresh</button>
+          </div>
         </div>
 
         <div class="notice scoring-banner">
-          <strong>Office Champ</strong> is the Elo-based ranking used to order the table.
-          <strong>Season Points</strong> are calculated as games won plus
-          <strong>0.5 participation points per completed match</strong>.
+          Choose whether to rank the table by <strong>Season Points</strong> or <strong>Elo Rating</strong>.
+          Season Points equal games won plus <strong>0.5 participation points per completed match</strong>.
+          Elo estimates playing strength from match wins and opponent ratings.
         </div>
 
         <div class="table-card">
@@ -88,7 +97,7 @@
                   <th>Lost</th>
                   <th>Participation</th>
                   <th>Season Points</th>
-                  <th>Office Champ</th>
+                  <th>Elo Rating</th>
                 </tr>
               </thead>
               <tbody id="leagueTableBody">
@@ -182,7 +191,7 @@
         <p class="eyebrow">MEET THE ATHLETES</p>
         <h2>Player Profiles</h2>
         <p class="intro player-intro">
-          Five very different approaches to the same small court, each supported by firm opinions and selective memory.
+          Six very different approaches to the same small court, each supported by firm opinions and selective memory.
         </p>
         <div id="playersGrid" class="players-grid">
           <article class="player-card">Loading players…</article>
