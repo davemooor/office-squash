@@ -25,6 +25,46 @@
       )
     : null;
 
+
+
+  const TRAINING_VIDEOS = [
+    {
+      title: "Crazy Rallies",
+      category: "Match Inspiration",
+      description: "Ridiculous retrievals, patient construction and proof that the rally is never over until somebody finally hits the tin.",
+      youtubeId: "nTcvGK3k1IQ",
+      start: 263
+    },
+    {
+      title: "Stroke or Let?",
+      category: "Rules & Refereeing",
+      description: "A useful guide to interference, lets and strokes — essential viewing before the next completely impartial office debate.",
+      youtubeId: "17IqrJNNvFY",
+      start: 0
+    },
+    {
+      title: "Best Warm-up Routines",
+      category: "Match Preparation",
+      description: "A proper squash warm-up for players who would prefer their first hard movement not to happen at 8–8 in game one.",
+      youtubeId: "H8iYJOn4a60",
+      start: 0
+    },
+    {
+      title: "Volleys: Early, Important and Tactical",
+      category: "Technique & Tactics",
+      description: "Take the ball early, hold the T and remove time from your opponent instead of politely waiting at the back wall.",
+      youtubeId: "RhVGSsfFmGg",
+      start: 136
+    },
+    {
+      title: "Best Squash Serves",
+      category: "Fundamentals",
+      description: "Use the only shot you control completely to create a weak return and begin the rally with an actual plan.",
+      youtubeId: "02JLBs8BRro",
+      start: 0
+    }
+  ];
+
   const state = {
     players: [],
     leaderboard: [],
@@ -84,6 +124,77 @@
       .join("")
       .slice(0, 2)
       .toUpperCase();
+  }
+
+
+
+  function trainingVideoUrl(video) {
+    const start = video.start ? `&t=${video.start}s` : "";
+    return `https://www.youtube.com/watch?v=${video.youtubeId}${start}`;
+  }
+
+  function renderTrainingVideos() {
+    const grid = el("trainingGrid");
+    if (!grid) return;
+
+    grid.innerHTML = TRAINING_VIDEOS.map((video) => `
+      <article class="training-card">
+        <a class="training-thumbnail" href="${trainingVideoUrl(video)}" target="_blank" rel="noopener noreferrer" aria-label="Watch ${escapeHtml(video.title)} on YouTube">
+          <img src="https://i.ytimg.com/vi/${video.youtubeId}/hqdefault.jpg" alt="Thumbnail for ${escapeHtml(video.title)}" loading="lazy" />
+          <span class="training-play" aria-hidden="true">▶</span>
+        </a>
+        <div class="training-card-body">
+          <p class="card-label">${escapeHtml(video.category)}</p>
+          <h3>${escapeHtml(video.title)}</h3>
+          <p>${escapeHtml(video.description)}</p>
+          <a class="button secondary small" href="${trainingVideoUrl(video)}" target="_blank" rel="noopener noreferrer">Watch on YouTube</a>
+        </div>
+      </article>
+    `).join("");
+  }
+
+  function trainingPopupStorageKey() {
+    const identity = currentEmail() || state.session?.user?.id || "league-member";
+    return `nrg-training-popup-seen:${identity}`;
+  }
+
+  function dismissTrainingPopup() {
+    const modal = el("trainingLaunchModal");
+    if (!modal) return;
+    localStorage.setItem(trainingPopupStorageKey(), "true");
+    modal.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+  }
+
+  function maybeShowTrainingPopup() {
+    const modal = el("trainingLaunchModal");
+    if (!modal || !state.session) return;
+    if (localStorage.getItem(trainingPopupStorageKey()) === "true") return;
+    modal.classList.remove("hidden");
+    document.body.classList.add("modal-open");
+  }
+
+  function setupTrainingPopup() {
+    const modal = el("trainingLaunchModal");
+    if (!modal) return;
+
+    el("openTrainingButton").addEventListener("click", () => {
+      dismissTrainingPopup();
+      location.hash = "#training";
+    });
+
+    el("dismissTrainingButton").addEventListener("click", dismissTrainingPopup);
+    el("closeTrainingModalButton").addEventListener("click", dismissTrainingPopup);
+
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) dismissTrainingPopup();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !modal.classList.contains("hidden")) {
+        dismissTrainingPopup();
+      }
+    });
   }
 
   function setupNavigation() {
@@ -594,11 +705,13 @@ All standings and Elo ratings will be recalculated.`
     state.session = data.session;
     await loadMyMembership();
     updateAuthUI(state.session);
+    window.setTimeout(maybeShowTrainingPopup, 250);
 
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
       state.session = session;
       await loadMyMembership();
       updateAuthUI(session);
+      if (session) window.setTimeout(maybeShowTrainingPopup, 250);
     });
 
     el("loginForm").addEventListener("submit", async (event) => {
@@ -650,6 +763,7 @@ All standings and Elo ratings will be recalculated.`
       el("loginPassword").value = "";
       setMessage(el("loginMessage"), "Signed in successfully.", "success");
       location.hash = "#table";
+      window.setTimeout(maybeShowTrainingPopup, 300);
     });
 
     el("logoutButton").addEventListener("click", async () => {
@@ -727,6 +841,8 @@ All standings and Elo ratings will be recalculated.`
 
   async function init() {
     setupNavigation();
+    renderTrainingVideos();
+    setupTrainingPopup();
     setDefaultDate();
     setupEvents();
     el("tableSortSelect").value = state.tableSort;
