@@ -28,6 +28,7 @@
         <a href="#players">Players</a>
         <a href="#rules">Rules</a>
         <a href="#elo">How Elo Works</a>
+        <a href="#training">Coach's Corner <span class="nav-new-badge">NEW</span></a>
         <a href="#login" id="loginNavLink">Login</a>
       </nav>
     </div>
@@ -406,6 +407,27 @@
       </div>
     </section>
 
+
+    <section id="training" class="page-section">
+      <div class="container">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">PROFESSIONAL DEVELOPMENT*</p>
+            <h2>Coach's Corner</h2>
+          </div>
+          <p class="training-disclaimer">*Watching counts as training. Apparently.</p>
+        </div>
+
+        <p class="intro training-intro">
+          Five carefully selected videos to improve technique, tactics, rules knowledge and the quality of future excuses.
+        </p>
+
+        <div id="trainingGrid" class="training-grid">
+          <article class="training-card">Loading training videos…</article>
+        </div>
+      </div>
+    </section>
+
     <section id="login" class="page-section">
       <div class="container narrow">
         <p class="eyebrow">SECURITY THEATRE</p>
@@ -443,6 +465,25 @@
       </div>
     </section>
   </main>
+
+
+  <div id="trainingLaunchModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="trainingModalTitle">
+    <div class="modal-card training-launch-card">
+      <button id="closeTrainingModalButton" class="modal-close" type="button" aria-label="Close">×</button>
+      <p class="eyebrow">NEW FEATURE UNLOCKED</p>
+      <h2 id="trainingModalTitle">Coach's Corner is now open.</h2>
+      <p>
+        The league committee has invested absolutely no money in coaching. Instead, we found five excellent YouTube videos.
+      </p>
+      <p class="modal-punchline">
+        Watch them now, then confidently blame execution rather than preparation.
+      </p>
+      <div class="button-row">
+        <button id="openTrainingButton" class="button primary" type="button">Begin highly theoretical training</button>
+        <button id="dismissTrainingButton" class="button secondary" type="button">Later — mediocrity needs me</button>
+      </div>
+    </div>
+  </div>
 
   <footer>
     <div class="container">
